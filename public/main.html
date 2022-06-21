@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="kr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
+    <style>
+        .search_book {
+            text-align: center;
+            margin-top: 2%;
+        }
+
+        input[type=text] {
+            width: 70%;
+            height: 45px;
+            border: 1px solid;
+            box-sizing: border-box;
+        }
+
+        .search_book>select {
+            width: 10%;
+        }
+
+        .best_seller {
+            border: 1px solid;
+            margin: 2% 5%;
+            padding: 10px;
+        }
+
+        #best_seller {
+            text-align: center;
+        }
+
+        #best_seller section {
+            display: inline-block;
+            overflow: hidden;
+            width: 210px;
+            height: 400px;
+            margin: 30px;
+        }
+
+        img {
+            width: 200px;
+        }
+
+        select {
+            margin: 10px;
+            width: 20%;
+            height: 45px;
+        }
+
+        #search-btn {
+            height: 45px;
+            cursor: pointer;
+        }
+
+        footer {
+            background-color: slategrey;
+            color: white;
+            clear: both;
+            padding: 20px;
+            height: 20px;
+        }
+
+        @media screen and (max-width: 900px) {
+            .search_book>select {
+                width: 70px;
+            }
+
+            input[type=text] {
+                width: 60%;
+            }
+
+            .best_seller>select {
+                width: 190px;
+            }
+
+            #best_seller section {
+                display: inline-block;
+                overflow: hidden;
+                width: 160px;
+                height: 350px;
+                margin: 10px;
+            }
+
+            img {
+                width: 150px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <form name="form1">
+        <div class="search_book">
+            <select name="category" id="category">
+                <option value="title">제목</option>
+                <option value="person">저자</option>
+                <option value="publisher">출판사</option>
+                <option value="isbn">ISBN</option>
+            </select>
+            <input type="text" name="search" id="search" placeholder="검색어를 입력하세요.">
+            <input type="button" value="검색" id="search-btn" onclick="showRes()">
+        </div>
+    </form>
+
+    <div class="best_seller">
+        <select name="category2" id="category2"></select>
+        <span>베스트셀러<br></span>
+        <section id="best_seller"></section>
+    </div>
+
+
+    <footer>
+        &copy;2022 구윤주 Yunju Gu
+    </footer>
+
+    <script>
+        $(document).ready(function () {
+            if (navigator.onLine == false){
+                alert("네트워크에 연결되어 있지 않습니다.");
+                
+            };
+
+            var bsCategory = [{ code: '100', category: '국내도서' }, { code: '101', category: '국내도서>소설' }, { code: '102', category: '국내도서>시/에세이' },
+            { code: '103', category: '국내도서>예술/대중문화' }, { code: '104', category: '국내도서>사회과학' }, { code: '105', category: '국내도서>역사와문화' }, { code: '107', category: '국내도서>잡지' },
+            { code: '108', category: '국내도서>만화' }, { code: '109', category: '국내도서>유아' }, { code: '110', category: '국내도서>아동' }, { code: '111', category: '국내도서>가정과생활' },
+            { code: '112', category: '국내도서>청소년' }, { code: '113', category: '국내도서>초등학습서' }, { code: '114', category: '국내도서>고등학습서' }, { code: '115', category: '국내도서>국어/외국어/사전' },
+            { code: '116', category: '국내도서>자연과과학' }, { code: '117', category: '국내도서>경제경영' }, { code: '118', category: '국내도서>자기계발' }, { code: '119', category: '국내도서>인문' },
+            { code: '120', category: '국내도서>종교/역학' }, { code: '122', category: '국내도서>컴퓨터/인터넷' }, { code: '123', category: '국내도서>자격서/수험서' }, { code: '124', category: '국내도서>취미/레저' },
+            { code: '125', category: '국내도서>전공도서/대학교재' }, { code: '126', category: '국내도서>건강/뷰티' }, { code: '128', category: '국내도서>여행' }, { code: '129', category: '국내도서>중등학습서' },
+            { code: '200', category: '외국도서' }];
+
+            $.each(bsCategory, function (index, value) {
+                $('#category2').append("<option value='" + value.code + "'>" + value.category + "</option>");
+            });
+
+            var categoryId = $("#category2 option:selected").val();
+            var settings = {
+                "url": "http://localhost:3000/webapi/bestseller?categoryId=" + categoryId,
+                "method": "GET",
+                "timeout": 0,
+            };
+
+            $.ajax(settings).done(function (response) {
+                bestseller = JSON.parse(response);
+                console.log(bestseller)
+                for (var i = 0; i < 8; i++) {
+                    $("#best_seller").append(
+                        "<section><img src='" + bestseller.item[i].coverLargeUrl + "'/>"
+                        + "<p><strong>" + bestseller.item[i].title + "</strong><p>"
+                        + "<p>" + bestseller.item[i].author + "</p></section>"
+                    );
+                };
+            });
+
+            $("#category2").change(function () {
+                $("#best_seller").empty();
+                var categoryId = $("#category2 option:selected").val();
+                var settings = {
+                    "url": "http://localhost:3000/webapi/bestseller?categoryId=" + categoryId,
+                    "method": "GET",
+                    "timeout": 0,
+                };
+
+                $.ajax(settings).done(function (response) {
+                    bestseller = JSON.parse(response);
+                    console.log(bestseller);
+                    for (var i = 0; i < 8; i++) {
+                        $("#best_seller").append(
+                            "<section><img src='" + bestseller.item[i].coverLargeUrl + "'/>"
+                            + "<p><strong>" + bestseller.item[i].title + "</strong><p>"
+                            + "<p>" + bestseller.item[i].author + "</p></section>"
+                        );
+                    };
+                });
+            });
+        })
+    </script>
+    <script>
+        function showRes() {
+            var search = document.getElementById("search").value;
+            var searchWebParam = {
+                query: search,
+                target: $("#category option:selected").val()
+            };
+
+            if (search == "") {
+                alert("검색어를 입력하세요.")
+                form1.search.focus();
+                return;
+            }
+
+            $.ajax({
+                method: "GET",
+                url: "https://dapi.kakao.com/v3/search/book",
+                data: searchWebParam,
+                headers: { Authorization: "KakaoAK 8b65c3b3bd440c20639855ff16725f13" }
+            })
+
+                .done(function (msg) {
+                    if (msg.documents.length == 0) {
+                        alert("검색 결과가 없습니다.")
+                        form1.search.focus();
+                        return;
+                    }
+                    sessionStorage.clear();
+                    sessionStorage.setItem("bookRes", JSON.stringify(msg));
+                    window.location.href = "booklist.html";
+                })
+        };
+    </script>
+
+</body>
+
+</html>

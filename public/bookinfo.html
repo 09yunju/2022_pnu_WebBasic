@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        section {
+            line-height: 1.7em;
+        }
+
+        span {
+            display: block;
+            text-align: right;
+            margin-bottom: 5px;
+        }
+
+        #page {
+            text-align: center;
+        }
+
+        #page>span {
+            display: inline;
+        }
+
+        img {
+            float: left;
+            display: block;
+            padding-right: 10px;
+            margin: 10px;
+            width: 120px;
+            height: 174px;
+        }
+
+        div {
+            border: 1px solid;
+            border-bottom: none;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        header h2 {
+            margin-top: 30px;
+        }
+
+        header li {
+            list-style-type: none;
+            padding-bottom: 3px;
+        }
+
+        header>span>a::after {
+            content: " | ";
+            color: black;
+        }
+
+        header>span>a:last-child::after {
+            content: ""
+        }
+
+        nav {
+            background-color: slategray;
+            padding: 15px;
+            clear: both;
+        }
+
+        nav a:link,
+        nav a:visited {
+            color: white;
+            text-decoration-line: none;
+        }
+
+        nav>a:hover {
+            background-color: white;
+            color: black;
+            padding: 15px;
+        }
+
+        section {
+            border: 1px solid black;
+            border-top: none;
+            padding: 10px 0;
+            margin: 0;
+        }
+
+        p {
+            text-indent: 1em;
+            padding: 10px;
+        }
+
+        a:link,
+        a:visited {
+            text-decoration: none;
+            color: slategray;
+        }
+
+        a:hover {
+            cursor: pointer;
+        }
+
+        footer {
+            background-color: slategrey;
+            color: white;
+            clear: both;
+            padding: 20px;
+            height: 20px;
+        }
+
+        label::before {
+            content: " | "
+        }
+
+        label:first-child::before {
+            content: "";
+        }
+
+        button {
+            background-color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <header id="book">
+        <span><a href=booklist.html>검색 목록으로 돌아가기</a><a href=main.html>검색 페이지로 돌아가기</a></span>
+    </header>
+
+    <nav>
+        <a href="#info">책 정보</a>&nbsp;&nbsp;
+        <a href="#buy">책 구매</a>&nbsp;&nbsp;
+        <a href="#lend">책 대출</a>&nbsp;&nbsp;
+        <a href="#review">책 리뷰</a>&nbsp;&nbsp;
+        <a href="#myreview">나의 평점</a>&nbsp;&nbsp;
+    </nav>
+
+    <section id="info">
+        <h2>&nbsp;&nbsp;[책 정보]</h2>
+    </section>
+    <section id="buy">
+        <h2>&nbsp;&nbsp;[책 구매]</h2>
+    </section>
+    <section id="lend">
+        <h2>&nbsp;&nbsp;[책 대출]</h2>
+        <ul id="lendList"></ul>
+    </section>
+    <section id="review">
+        <h2>&nbsp;&nbsp;[책 리뷰]</h2>
+    </section>
+    <section id="myreview">
+        <h2>&nbsp;&nbsp;[나의 평점]</h2>
+        <form name="star" id="star" method="post">
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <label for="rate1">⭐</label><input type="radio" name="rating" value="1" id="rate1">
+            <label for="rate2">⭐⭐</label><input type="radio" name="rating" value="2" id="rate2">
+            <label for="rate3">⭐⭐⭐</label><input type="radio" name="rating" value="3" id="rate3">
+            <label for="rate4">⭐⭐⭐⭐</label><input type="radio" name="rating" value="4" id="rate4">
+            <label for="rate5">⭐⭐⭐⭐⭐</label><input type="radio" name="rating" value="5" id="rate5">
+        </form><br>
+    </section>
+
+    <footer>
+        &copy;2022 구윤주 Yunju Gu
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function () {
+            info = JSON.parse(sessionStorage.getItem("info"));
+            console.log(info);
+            var date = info.datetime.toString();
+            var publishDate = date.substring(0, date.indexOf("T"));
+            if (info.thumbnail == "") {
+                var image = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/495px-No-Image-Placeholder.svg.png?20200912122019";
+            } else {
+                var image = info.thumbnail;
+            }
+
+            document.getElementById("book").innerHTML += "<div><img src='" + image + "'/>"
+                + "<h2>" + info.title + "</h2>"
+                + "<ul><li>저자: " + info.authors + "</li>"
+                + "<li>출판사: " + info.publisher + "</li>"
+                + "<li>출판일: " + publishDate + "</li></ul></div>";
+
+            document.getElementById("info").innerHTML += "<p>" + info.contents + "... <a href='" + info.url + "'>더보기</a></p>";
+
+            document.getElementById("buy").innerHTML += "<ul><li>도서 정가: " + info.price + "원</li>"
+                + "<li>도서 할인가: " + info.sale_price + "원</li>"
+                + "<li>도서 판매 상태: " + info.status + "</li>"
+                + "<li><a href='https://shoppinghow.kakao.com/search/" + encodeURIComponent(info.title) + "/cateid:103111100'>도서 구매하기</a></li></ul>";
+
+            var isbn = info.isbn.slice(-13);
+
+            var settings1 = {
+                "url": "http://localhost:3000/webapi/lib?isbn=" + isbn,
+                "method": "GET",
+                "timeout": 0
+            }
+
+            $.ajax(settings1).done(function (response) {
+                libRes = JSON.parse(response);
+                console.log(libRes);
+
+                if (libRes.response.numFound == 0) {
+                    document.getElementById("lendList").innerHTML += "대출 정보가 없습니다.";
+                } else {
+
+                    var index = libRes.response.resultNum;
+                    for (var i = 0; i < index; i++) {
+                        (function (i) {
+                            var libName = libRes.response.libs[i].lib.libName;
+                            var libLink = libRes.response.libs[i].lib.homepage;
+                            var libCode = libRes.response.libs[i].lib.libCode;
+                            $.ajax({
+                                "url": "http://localhost:3000/webapi/lend?libCode=" + libCode + "&isbn13=" + isbn,
+                                "method": "GET",
+                                "timeout": 0
+                            })
+                                .done(function (msg) {
+                                    var lendAvailable = JSON.parse(msg);
+                                    console.log(lendAvailable);
+                                    if (lendAvailable.response.result.loanAvailable == "Y") {
+                                        document.getElementById("lendList").innerHTML += "<li><a href='" + libLink + "'>" + libName + "</a>: 대출가능</li>";
+                                    } else {
+                                        document.getElementById("lendList").innerHTML += "<li><a href='" + libLink + "'>" + libName + "</a>: 대출불가능</li>";
+                                    }
+                                });
+                        })(i);
+
+                    };
+                };
+            })
+
+            var query = info.title + " 리뷰";
+            var settings3 = {
+                "url": "http://localhost:3000/webapi/review?query=" + encodeURI(query),
+                "method": "GET",
+                "timeout": 0
+            }
+            $.ajax(settings3).done(function (response) {
+                for (var i = 0; i < 5; i++) {
+                    document.getElementById("review").innerHTML += "<ul><li><h3>" + response.items[i].title + "</h3>"
+                        + "<p>" + response.items[i].description + "<a href='" + response.items[i].link + "'>더보기</a></p></li></ul><hr>";
+                }
+            })
+        })
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>book search result</title>
+    <style>
+        header span {
+            display: block;
+            text-align: right;
+        }
+
+        span a:link,
+        span a:visited {
+            text-decoration: none;
+            color: slategray;
+        }
+
+        footer span {
+            display: block;
+            text-align: center;
+        }
+
+        span a:hover {
+            cursor: pointer;
+        }
+
+        img {
+            float: left;
+            display: block;
+            padding-right: 10px;
+            margin: 10px;
+            width: 120px;
+            height: 174px;
+        }
+
+        h3 {
+            margin-top: 35px;
+        }
+
+        div {
+            cursor: pointer;
+            border: 1px solid;
+            margin: 1%;
+            overflow: hidden;
+        }
+
+        li {
+            list-style: none;
+            padding-bottom: 3px;
+        }
+
+        footer {
+            background-color: slategrey;
+            color: white;
+            clear: both;
+            padding: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <span><a href=main.html>검색 페이지로 돌아가기</a></span>
+    </header>
+    <section id="res"></section>
+    <footer>
+        &copy;2022 구윤주 Yunju Gu
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function () {
+            bookRes = JSON.parse(sessionStorage.getItem("bookRes"));
+            console.log(bookRes);
+            if (bookRes.meta.total_count < 10) {
+                var index = bookRes.meta.total_count;
+            } else {
+                var index = 10;
+            }
+            for (var i = 0; i < index; i++) {
+                var date = bookRes.documents[i].datetime.toString();
+                var publishDate = date.substring(0, date.indexOf("T"));
+                if (bookRes.documents[i].thumbnail == "") {
+                    var image = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/495px-No-Image-Placeholder.svg.png?20200912122019";
+                } else {
+                    var image = bookRes.documents[i].thumbnail;
+                }
+
+                document.getElementById("res").innerHTML += "<div id='" + i + "'><img src='" + image + "'/>"
+                    + "<h3>" + bookRes.documents[i].title + "</h3>"
+                    + "<ul><li>저자: " + bookRes.documents[i].authors + "</li>"
+                    + "<li>출판사: " + bookRes.documents[i].publisher + "</li>"
+                    + "<li>출판일: " + publishDate + "</li></ul></div>";
+            }
+
+            $("div").click(function () {
+                var click_id = $(this).attr("id");
+                sessionStorage.setItem("info", JSON.stringify(bookRes.documents[click_id]));
+                window.location.href = "bookinfo.html";
+            })
+        })
+
+    </script>
+
+</body>
+
+</html>
